@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.dao.IBaseDao">
+	<select id="queryCount"  parameterType="Map"  resultType="java.lang.Integer" statementType="STATEMENT" >
+		select count(*) cnt from ${tname} 
+	</select>
+	
+	<select id="comboboxLoad"  parameterType="Map"  resultType="java.util.Map" statementType="STATEMENT" >
+		select ${cid} as id,${ctext} as text from ${tname} 
+	</select>
+</mapper>

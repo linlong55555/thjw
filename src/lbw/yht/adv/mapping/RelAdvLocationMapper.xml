@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IRelAdvLocationDao">
+		<resultMap type="lbw.yht.adv.domain.AdvLocation" id="AdvLocationMap">
+		<id column="adv_id" property="advId" />
+		<result column="adv_position" property="advPosition" />
+		<result column="adv_format" property="advFormat" />
+		<result column="adv_filesize" property="advFilesize" />
+		<result column="adv_size" property="advSize" />
+		<result column="adv_no" property="advNo" />
+		<result column="adv_date" property="advDate" />
+		<result column="adv_state" property="advState" />
+		<result column="adv_content" property="advContent" />
+		<result column="adv_notice" property="advNotice" />
+		<result column="adv_affiche" property="advAffiche" />	
+		<association property="typeCode" javaType="lbw.yht.adv.domain.AdvType"
+			resultMap="AdvTypeMap" />
+	</resultMap>
+	
+	<resultMap type="lbw.yht.adv.domain.AdvFiltrate" id="advFiltrateMap">
+		<id column="filtrate_code" property="filtrateCode" />
+		<result column="filtrate_pid" property="filtratePid" />
+		<result column="filtrate_name" property="filtrateName" />
+		<result column="filtrate_state" property="filtrateState" />
+		<result column="filtrate_date" property="filtrateDate" />
+		<result column="content" property="content" />
+	</resultMap>
+
+
+	<resultMap type="lbw.yht.adv.domain.RelAdvLocation" id="relAdvLocationMap">
+		<id column="relation_id" property="relation_id" />
+		<association property="advId" javaType="lbw.yht.adv.domain.AdvLocation"
+			resultMap="AdvLocationMap" />
+		<association property="filtrateCode" javaType="lbw.yht.adv.domain.AdvFiltrate"
+			resultMap="advFiltrateMap" />
+	</resultMap>
+	
+	<select id="queryCount" parameterType="lbw.yht.adv.domain.param.RelAdvLocationParam" resultType="int">
+		select count(*) 
+		FROM rel_adv_location a
+	</select>
+	
+	<select id="queryAllpageList" parameterType="lbw.yht.adv.domain.RelAdvLocation"
+		resultMap="relAdvLocationMap">
+	</select>
+	
+</mapper>

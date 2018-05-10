@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IAdvAttributeDao">
+
+	<resultMap type="lbw.yht.adv.domain.AdvType" id="AdvTypeMap">
+		<id column="type_code" property="typeCode" />
+		<result column="type_name" property="typeName" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvAttribute" id="AdvAttributeMap">
+		<id column="adv_id" property="advId" />
+		<result column="region_code" property="regionCode" />
+		<result column="region_name" property="regionName" />
+		<result column="adv_area" property="advArea" />
+		<result column="adv_page" property="advPage" />
+		<result column="adv_position" property="advPosition" />
+		<result column="img_name" property="imgName" />
+		<result column="adv_pattern" property="advPattern" />
+		<result column="adv_size" property="advSize" />
+		<result column="webpage_url" property="webpageUrl" />
+		<result column="adv_explain" property="advExplain" />
+		<result column="adv_status" property="advStatus" />
+		<association property="advType" javaType="lbw.yht.adv.domain.AdvType"
+			resultMap="AdvTypeMap" />
+	</resultMap>
+
+	<select id="queryCount" resultType="int"
+		parameterType="lbw.yht.adv.domain.param.AdvAttributeParam">
+		select count(*)
+		FROM
+		adv_attribute a left join
+		adv_type b on
+		a.type_code=b.type_code
+		where 1=1
+		<if test="typeCode != null and typeCode != ''">
+			and a.type_code =#{typeCode}
+		</if>
+		<if test="code != null and code != ''">
+			and a.region_code =#{code}
+		</if>
+		<if test="advStatus != null and advStatus != ''">
+			and a.adv_status =#{advStatus}
+		</if>
+	</select>
+
+
+	<select id="queryAllpageList" resultMap="AdvAttributeMap"
+		parameterType="lbw.yht.adv.domain.param.AdvAttributeParam">
+		select
+		a.adv_id,
+		a.type_code,
+		a.region_code,
+		a.region_name,
+		a.adv_area,
+		a.adv_page,
+		a.adv_position,
+		a.img_name,
+		a.adv_pattern,
+		a.adv_size,
+		a.webpage_url,
+		a.adv_explain,
+		a.adv_status,
+		b.type_name
+		FROM
+		adv_attribute
+		a left join
+		adv_type b on
+		a.type_code=b.type_code
+		where 1=1
+		<if test="typeCode != null and typeCode != ''">
+			and a.type_code =#{typeCode}
+		</if>
+		<if test="code != null and code != ''">
+			and a.region_code =#{code}
+		</if>
+		<if test="advStatus != null and advStatus != ''">
+			and a.adv_status =#{advStatus}
+		</if>
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort} ${pagination.order}
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</select>
+
+	<select id="findOneByAdvId" parameterType="String" resultMap="AdvAttributeMap">
+		select
+		a.adv_id,
+		a.type_code,
+		a.region_code,
+		a.region_name,
+		a.adv_area,
+		a.adv_page,
+		a.adv_position,
+		a.img_name,
+		a.adv_pattern,
+		a.adv_size,
+		a.webpage_url,
+		a.adv_explain,
+		a.adv_status,
+		b.type_name
+		FROM
+		adv_attribute
+		a left join
+		adv_type b on
+		a.type_code=b.type_code
+		where a.adv_id=#{advId}
+	</select>
+
+	<insert id="save" parameterType="lbw.yht.adv.domain.AdvAttribute">
+		insert into adv_attribute(
+		type_code,
+		region_code,
+		region_name,
+		adv_area,
+		adv_page,
+		adv_position,
+		img_name,
+		adv_pattern,
+		adv_size,
+		webpage_url,
+		adv_explain,
+		adv_status
+		) values(
+		#{advType.typeCode},
+		#{regionCode},
+		#{regionName},
+		#{advArea},
+		#{advPage},
+		#{advPosition},
+		#{imgName},
+		#{advPattern},
+		#{advSize},
+		#{webpageUrl},
+		#{advExplain},
+		#{advStatus})
+	</insert>
+
+
+	<update id="modify" parameterType="lbw.yht.adv.domain.AdvAttribute">
+		update adv_attribute set
+		type_code=#{advType.typeCode},
+		region_code=#{regionCode},
+		region_name=#{regionName},
+		adv_area=#{advArea},
+		adv_page=#{advPage},
+		adv_position=#{advPosition},
+		img_name=#{imgName},
+		adv_pattern=#{advPattern},
+		adv_size=#{advSize},
+		webpage_url=#{webpageUrl},
+		adv_explain=#{advExplain},
+		adv_status=#{advStatus}
+		where adv_id=#{advId}
+	</update>
+
+	<delete id="delete" parameterType="String">
+		delete from adv_attribute
+		where adv_id=#{advIds}
+	</delete>
+
+	<update id="updateAdvStatus" parameterType="lbw.yht.adv.domain.AdvAttribute">
+		update adv_attribute
+		set
+		adv_status=#{advStatus}
+		where adv_id=#{advId}
+	</update>
+
+
+	<select id="queryAttributeCount" resultType="int" parameterType="Map">
+		select count(*)
+		FROM
+		adv_attribute a left join
+		adv_type b on
+		a.type_code=b.type_code
+		where a.adv_status=0
+		<if test="typeCode != null and typeCode != ''">
+			and a.type_code =#{typeCode}
+		</if>
+		<if test="regionCode != null and regionCode != ''">
+			and a.region_code =#{regionCode}
+		</if>
+	</select>
+
+
+	<select id="queryAttributeList" resultMap="AdvAttributeMap"
+		parameterType="Map">
+		select
+		a.adv_id,
+		a.type_code,
+		a.region_code,
+		a.region_name,
+		a.adv_area,
+		a.adv_page,
+		a.adv_position,
+		a.img_name,
+		a.adv_pattern,
+		a.adv_size,
+		a.webpage_url,
+		a.adv_explain,
+		a.adv_status,
+		b.type_name
+		FROM
+		adv_attribute a left join
+		adv_type b on
+		a.type_code=b.type_code
+		where a.adv_status=0
+		<if test="typeCode != null and typeCode != ''">
+			and a.type_code =#{typeCode}
+		</if>
+		<if test="regionCode != null and regionCode != ''">
+			and a.region_code =#{regionCode}
+		</if>
+	</select>
+
+</mapper>

@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IAdvBiddingDao">
+
+	<resultMap type="lbw.yht.adv.domain.AdvType" id="AdvTypeMap">
+		<id column="type_code" property="typeCode" />
+		<result column="type_name" property="typeName" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvAttribute" id="AdvAttributeMap">
+		<id column="adv_id" property="advId" />
+		<result column="region_code" property="regionCode" />
+		<result column="region_name" property="regionName" />
+		<result column="adv_area" property="advArea" />
+		<result column="adv_page" property="advPage" />
+		<result column="adv_position" property="advPosition" />
+		<result column="img_name" property="imgName" />
+		<result column="adv_pattern" property="advPattern" />
+		<result column="adv_size" property="advSize" />
+		<result column="webpage_url" property="webpageUrl" />
+		<result column="adv_explain" property="advExplain" />
+		<result column="adv_status" property="advStatus" />
+		<association property="advType" javaType="lbw.yht.adv.domain.AdvType"
+			resultMap="AdvTypeMap" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvplaceRelease" id="advplaceReleaseMap">
+		<id column="advplace_id" property="advplaceId" />
+		<result column="starting_price" property="startingPrice" />
+		<result column="increase" property="increase" />
+		<result column="assessment_price" property="assessmentPrice" />
+		<result column="start_bidding_period" property="startBiddingPeriod" />
+		<result column="end_bidding_period" property="endBiddingPeriod" />
+		<result column="start_use_time" property="startUseTime" />
+		<result column="end_use_time" property="endUseTime" />
+		<result column="bidding_notice" property="biddingNotice" />
+		<result column="bidding_bulletin" property="biddingBulletin" />
+		<result column="advplace_state" property="advplaceState" />
+		<association property="advAttribute" javaType="lbw.yht.adv.domain.AdvAttribute"
+			resultMap="AdvAttributeMap" />
+	</resultMap>
+
+
+	<resultMap type="lbw.yht.adv.domain.BiddingTime" id="biddingTimeMap">
+		<id column="bidding_time_id" property="biddingTimeId" />
+		<result column="start_time" property="startTime" />
+		<result column="end_time" property="endTime" />
+		<result column="total_number" property="totalNumber" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvBidding" id="advBiddingMap">
+		<id column="bidding_id" property="biddingId" />
+		<result column="member_id" property="memberId" />
+		<result column="member_name" property="memberName" />
+		<result column="member_no" property="memberNo" />
+		<result column="avgbidding_price" property="avgbiddingPrice" />
+		<result column="bidding_price" property="biddingPrice" />
+		<result column="adver_content" property="adverContent" />
+		<result column="bidding_status" property="biddingStatus" />
+		<result column="agreement_no" property="agreementNo" />
+		<result column="agreement_name" property="agreementName" />
+		<result column="file_name" property="fileName" />
+		<collection property="advplaceReleaseList" javaType="ArrayList"
+			resultMap="advplaceReleaseMap" />
+		<collection property="biddingTimeList" javaType="ArrayList"
+			resultMap="biddingTimeMap" />
+	</resultMap>
+
+	<select id="queryAllpageList" parameterType="lbw.yht.adv.domain.param.AdvBiddingParam"
+		resultMap="advBiddingMap">
+		SELECT
+		bidding_id,
+		member_id,
+		member_name,
+		member_no,
+		avgbidding_price,
+		bidding_price,
+		adver_content,
+		bidding_status,
+		agreement_no,
+		agreement_name,
+		file_name
+		from adv_bidding
+		where 1=1
+		<if test="biddingStatus != null and biddingStatus != ''  ">
+			and bidding_status =#{biddingStatus}
+		</if>
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort}
+			${pagination.order},avgbidding_price DESC
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</select>
+
+	<select id="queryCount" parameterType="lbw.yht.adv.domain.param.AdvBiddingParam"
+		resultType="int">
+		select count(*)
+		FROM adv_bidding
+		where 1=1
+		<if test="biddingStatus != null and biddingStatus != ''  ">
+			and bidding_status =#{biddingStatus}
+		</if>
+	</select>
+
+	<select id="findByBiddingId" parameterType="String" resultMap="advBiddingMap">
+		SELECT
+		a.bidding_id,
+		a.member_id,
+		a.member_name,
+		a.member_no,
+		a.avgbidding_price,
+		a.bidding_price,
+		a.adver_content,
+		a.bidding_status,
+		a.agreement_no,
+		a.agreement_name,
+		a.file_name,
+		b.bidding_time_id,
+		b.start_time,
+		b.end_time,
+		b.total_number,
+		d.advplace_id,
+		d.starting_price,
+		d.increase,
+		d.assessment_price,
+		d.start_bidding_period,
+		d.end_bidding_period,
+		d.start_use_time,
+		d.end_use_time,
+		d.advplace_state,
+		e.adv_id,
+		e.region_code,
+		e.region_name,
+		e.adv_area,
+		e.adv_page,
+		e.adv_position,
+		e.adv_size,
+		f.type_code,
+		f.type_name
+		FROM
+		adv_bidding a
+		LEFT JOIN
+		bidding_time b ON
+		a.bidding_id =
+		b.bidding_id
+		LEFT JOIN adv_rel_bidding c
+		ON a.bidding_id
+		= c.bidding_id
+		LEFT JOIN
+		advplace_release d on
+		c.advplace_id=d.advplace_id left join
+		adv_attribute e ON d.adv_id =
+		e.adv_id
+		LEFT
+		JOIN adv_type f ON
+		e.type_code =
+		f.type_code
+		where
+		a.bidding_id=#{biddingId}
+	</select>
+
+	<update id="modifyAgreement" parameterType="lbw.yht.adv.domain.AdvBidding">
+		update adv_bidding
+		set
+		agreement_no=#{agreementNo},
+		agreement_name=#{agreementName}
+		where
+		bidding_id=#{biddingId}
+	</update>
+
+
+	<update id="modifyAdvbiddingStatus" parameterType="java.util.Map">
+		update
+		adv_bidding
+		set
+		bidding_status=#{biddingStatus}
+		where
+		bidding_id in
+		(${ids})
+	</update>
+
+	<update id="modifyFile" parameterType="lbw.yht.adv.domain.AdvBidding">
+		update adv_bidding
+		set
+		file_name=#{fileName}
+		where
+		bidding_id =#{biddingId}
+	</update>
+
+
+
+
+	<select id="queryNewAdvbidding" parameterType="java.util.Map"
+		resultMap="advBiddingMap">
+		SELECT
+		bidding_id,
+		member_id,
+		member_name,
+		member_no,
+		avgbidding_price,
+		bidding_price,
+		adver_content
+		FROM
+		adv_bidding
+		WHERE
+		bidding_status = 0
+		ORDER BY
+		bidding_id DESC
+		LIMIT
+		0,${numCount}
+	</select>
+
+
+
+	<select id="queryBiddingByMember" parameterType="Map" resultMap="advBiddingMap">
+		SELECT
+		bidding_id,
+		member_id,
+		member_name,
+		member_no,
+		avgbidding_price,
+		bidding_price,
+		adver_content,
+		bidding_status,
+		agreement_no,
+		agreement_name,
+		file_name
+		from adv_bidding
+		where member_id=#{memberId}
+		<if test="biddingStatus != null and biddingStatus != ''  ">
+			and bidding_status =#{biddingStatus}
+		</if>
+		order by bidding_id DESC
+		limit ${page},${rows}
+	</select>
+
+	<select id="queryBidByMemCount" parameterType="Map" resultType="int">
+		select count(*)
+		from adv_bidding
+		where member_id=#{memberId}
+		<if test="biddingStatus != null and biddingStatus != ''  ">
+			and bidding_status =#{biddingStatus}
+		</if>
+	</select>
+
+
+	<select id="queryMaxBiddingId" resultType="java.lang.Integer">
+		select max(bidding_id)
+		from
+		adv_bidding
+	</select>
+
+
+
+	<insert id="addAdvBidding" parameterType="lbw.yht.adv.domain.AdvBidding">
+		insert into
+		adv_bidding(
+		bidding_id,
+		member_id,
+		member_name,
+		member_no,
+		avgbidding_price,
+		bidding_price,
+		adver_content,
+		bidding_status
+		) values(
+		#{biddingId},
+		#{memberId},
+		#{memberName},
+		#{memberNo},
+		#{avgbiddingPrice},
+		#{biddingPrice},
+		#{adverContent},
+		#{biddingStatus})
+	</insert>
+
+
+</mapper>

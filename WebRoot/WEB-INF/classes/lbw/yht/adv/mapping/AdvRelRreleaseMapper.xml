@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IAdvRelRreleaseDao">
+
+	<resultMap type="lbw.yht.adv.domain.AdvRelRrelease" id="advRelRreleaseMap">
+		<id column="adv_release_id" property="advReleaseId" />
+		<result column="adv_id" property="advId" />
+		<result column="release_id" property="releaseId" />
+	</resultMap>
+
+	<insert id="save" parameterType="lbw.yht.adv.domain.AdvRelRrelease">
+		insert into
+		adv_rel_release(adv_id,release_id) values(#{advId},#{releaseId})
+	</insert>
+
+	<delete id="deleteByReleaseId" parameterType="String">
+		delete from
+		adv_rel_release where release_id=#{releaseId}
+	</delete>
+
+	<select id="querySellAdvattribute" parameterType="java.util.Map"
+		resultType="String">
+		SELECT
+		adv_id
+		FROM
+		adv_rel_release
+		GROUP BY
+		adv_id
+		ORDER BY
+		count(*) DESC
+		LIMIT 0,${numCount}
+	</select>
+
+
+</mapper>

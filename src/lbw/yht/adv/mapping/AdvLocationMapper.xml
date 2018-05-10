@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IAdvLocationDao">
+	
+	<resultMap type="lbw.yht.adv.domain.AdvType" id="AdvTypeMap">
+		<id column="type_code" property="typeCode" />
+		<result column="parent_type_code" property="parentTypeCode" />
+		<result column="type_name" property="typeName" />
+		<result column="type_date" property="typeDate" />
+		<result column="type_content" property="typeContent" />
+		<result column="type_state" property="typeState" />
+	</resultMap>
+		
+	<resultMap type="lbw.yht.adv.domain.AdvLocation" id="AdvLocationMap">
+		<id column="adv_id" property="advId" />
+		<result column="adv_position" property="advPosition" />
+		<result column="adv_format" property="advFormat" />
+		<result column="adv_filesize" property="advFilesize" />
+		<result column="adv_size" property="advSize" />
+		<result column="adv_no" property="advNo" />
+		<result column="adv_date" property="advDate" />
+		<result column="adv_state" property="advState" />
+		<result column="adv_content" property="advContent" />
+		<result column="adv_notice" property="advNotice" />
+		<result column="adv_affiche" property="advAffiche" />	
+		<association property="typeCode" javaType="lbw.yht.adv.domain.AdvType"
+			resultMap="AdvTypeMap" />
+	</resultMap>
+
+	<select id="queryCount" parameterType="lbw.yht.adv.domain.param.AdvLocationParam"
+		resultType="int">
+		select count(*)
+		FROM
+		adv_Location a left join
+		adv_type b on
+		a.type_code=b.type_code
+		where 1=1
+	</select>
+
+	<select id="queryAllpageList" parameterType="lbw.yht.adv.domain.AdvLocation"
+		resultMap="AdvLocationMap">
+		SELECT
+		a.adv_id,
+		a.type_code,
+		a.adv_position,
+		a.adv_filesize,
+		a.adv_format,
+		a.adv_size,
+		a.adv_size,
+		a.adv_date,
+		a.adv_state,
+		a.adv_content,
+		a.adv_notice,
+		a.adv_affiche
+		,b.type_name
+		FROM
+		adv_Location a left join
+		adv_type b on
+		a.type_code=b.type_code
+		where 1=1
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort} ${pagination.order}
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</select>
+
+
+
+</mapper>

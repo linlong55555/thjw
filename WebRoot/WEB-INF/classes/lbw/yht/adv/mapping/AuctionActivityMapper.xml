@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IAuctionActivityDao">
+
+	<resultMap type="lbw.yht.adv.domain.AuctionActivity" id="AutionActivityMap">
+		<id column="activity_id" property="activityId" />
+		<result column="type_code" property="advTypeCode" />
+		<result column="adv_id" property="advId" />
+		<result column="operator_id" property="operatorId" />
+		<result column="create_date" property="createDate" javaType="java.util.Date"/>
+		<result column="activity_desc" property="desc"/>
+		<result column="activity_status" property="status"/>
+		<result column="previous_activity_id" property="preActivityId"/>
+		<result column="is_pact" property="isPact"/>
+		<result column="is_balance" property="isBalance"/>
+		<result column="type_name" property="advTypeName"/>
+		<result column="adv_position" property="advPosition"/>
+		<collection property="attrsList" javaType="java.util.List" column="activity_id"
+			ofType="lbw.yht.adv.domain.ActivityAttribute" select="queryActivityAttrs" />
+	</resultMap>
+	
+	<resultMap type="lbw.yht.adv.domain.AuctionAttribute" id="AuctionAttributeMap">
+		<id column="attr_id" property="attrId"/>
+		<result column="attr_name" property="attrName"/>
+		<result column="is_use" property="isUse"/>
+		<result column="is_must_select" property="isMustSelect"/>
+		<result column="ele_type" property="eleType"/>
+		<result column="default_value" property="defaultValue"/>
+	</resultMap>
+	
+	<resultMap type="lbw.yht.adv.domain.ActivityAttribute" id="ActivityAttributeMap">
+		<result column="activity_sub_id" property="activitySubId"/>
+		<result column="activity_id" property="activityId"/>
+		<result column="attr_id" property="attrId"/>
+		<result column="attr_value" property="attrValue"/>
+		<result column="attr_value_type" property="attrValueType"/>
+		<result column="attr_name" property="attrName"/>
+	</resultMap>
+	
+	<sql id="insertAuctionActivityCond">
+		(activity_id, 
+		type_code, 
+		adv_id, 
+		operator_id, 
+		create_date, 
+		activity_desc, 
+		activity_status
+		<if test="preActivityId != null and preActivityId != ''">
+		, previous_activity_id
+		</if>
+		<if test="isPact != null">
+		, is_pact
+		</if>
+		<if test="isBalance != null">
+		, is_balance
+		</if>
+		) values (
+		#{activityId},
+		#{advTypeCode},
+		#{advId},
+		#{operatorId},
+		#{createDate},
+		#{desc},
+		#{status}
+		<if test="preActivityId != null and preActivityId != ''">
+		, #{preActivityId}
+		</if>
+		<if test="isPact != null">
+		, #{isPact}
+		</if>
+		<if test="isBalance != null">
+		, #{isBalance}
+		</if>
+		)
+	</sql>
+	
+	<insert id="saveAuctionActivity" parameterType="lbw.yht.adv.domain.AuctionActivity">
+		insert into 
+		auction_activity_main
+		<include refid="insertAuctionActivityCond"></include>
+	</insert>
+	
+	<insert id="saveAuctionActivityHistory" parameterType="lbw.yht.adv.domain.AuctionActivity">
+		insert into 
+		auction_activity_main_history
+		<include refid="insertAuctionActivityCond"></include>
+	</insert>
+	
+	<sql id="queryAuctionActivityCond">
+		where 1 = 1 
+		<if test="activityId != null and activityId != ''">
+		and a.activity_id = #{activityId} 
+		</if>
+		<if test="advTypeCode != null and advTypeCode != ''">
+		and a.type_code = #{advTypeCode} 
+		</if>
+		<if test="advId != null">
+		and a.adv_id = #{advId}
+		</if>
+		<if test="operatorId != null">
+		and a.operator_id = #{operatorId}
+		</if>
+		<if test="createDateBegin != null">
+		and a.create_time &gt;= #{createDateBegin}
+		</if>
+		<if test="createDateEnd != null">
+		and a.create_time &lt;= #{createDateEnd}
+		</if>
+		<if test="status != null">
+		and a.activity_status = #{status} 
+		</if>
+		<if test="preActivityId != null and preActivityId != ''">
+		and a.previous_activity_id = #{preActivityId} 
+		</if>
+	</sql>
+	
+	<select id="queryMaxId" parameterType="Object" resultType="String">
+	   select max(activity_id) maxId
+	   from auction_activity_main
+	   where left(activity_id, 8)=#{ymd}
+	</select>
+	
+	<select id="queryAuctionActivityList" parameterType="Map" resultMap="AutionActivityMap">
+	select a.activity_id, a.type_code, a.adv_id, a.operator_id, a.create_time, a.activity_desc, a.activity_status, a.previous_activity_id,
+	    b.type_name, c.adv_position  
+	from auction_activity_main a
+	inner join adv_type b on a.type_code = b.type_code 
+	inner join adv_location c on a.adv_id = c.adv_id 
+	<include refid="queryAuctionActivityCond"></include>
+	<if test="pagination != null">
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort} ${pagination.order}
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</if>
+	</select>
+	
+	<select id="queryAuctionActivityCount" parameterType="Map" resultType="Integer">
+	select count(activity_id) 
+	from auction_activity_main a
+	<include refid="queryAuctionActivityCond"></include>
+	</select>
+	
+	<select id="queryAuctionActivityHistoryList" parameterType="Map" resultMap="AutionActivityMap">
+	select a.activity_id, a.type_code, a.adv_id, a.operator_id, a.create_time, a.activity_desc, a.activity_status, a.previous_activity_id 
+	from auction_activity_main_history a
+	<include refid="queryAuctionActivityCond"></include>
+	<if test="pagination != null">
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort} ${pagination.order}
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</if>
+	</select>
+	
+	<select id="queryAuctionActivityHistoryCount" parameterType="Map" resultType="Integer">
+	select count(activity_id) 
+	from auction_activity_main_history 
+	<include refid="queryAuctionActivityCond"></include>
+	</select>
+	
+	<update id="updateAuctionActivityStatus" parameterType="lbw.yht.adv.domain.AuctionActivity">
+	update auction_activity_main 
+	set activity_status = #{status}
+	where activity_id = #{activityId}
+	</update>
+	
+	<update id="updateAuctionActivityHistoryIsPact" parameterType="lbw.yht.adv.domain.AuctionActivity">
+	update auction_activity_main_history 
+	set is_pact = #{IsPact}
+	where activity_id = #{activityId}
+	</update>
+	
+	<update id="updateAuctionActivityHistoryIsBalance" parameterType="lbw.yht.adv.domain.AuctionActivity">
+	update auction_activity_main_history 
+	set is_balance = #{IsBalance}
+	where activity_id = #{activityId}
+	</update>
+	
+	<delete id="deleteAuctionActivityById" parameterType="lbw.yht.adv.domain.AuctionActivity">
+	delete from auction_activity_main 
+	where activity_id = #{activityId}
+	</delete>
+			
+	<select id="queryActivityAttrs" parameterType="Map" resultMap="ActivityAttributeMap">
+		select a.activity_sub_id, a.activity_id, a.attr_id, a.attr_value, a.attr_value_type, b.attr_name
+		from auction_activity_sub a 
+		inner join auction_attribute b 
+		on a.attr_id = b.attr_id 
+		where 1=1
+		<if test="activitySubId != null">
+		and	activity_sub_id = #{activitySubId} 
+		</if>
+		<if test="activityId != null and activityId != ''">
+		and	activity_id = #{activityId} 
+		</if>
+	</select>
+	
+</mapper>

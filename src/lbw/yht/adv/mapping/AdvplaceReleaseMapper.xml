@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IAdvplaceReleaseDao">
+
+	<resultMap type="lbw.yht.adv.domain.AdvType" id="AdvTypeMap">
+		<id column="type_code" property="typeCode" />
+		<result column="type_name" property="typeName" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvAttribute" id="AdvAttributeMap">
+		<id column="adv_id" property="advId" />
+		<result column="region_code" property="regionCode" />
+		<result column="region_name" property="regionName" />
+		<result column="adv_area" property="advArea" />
+		<result column="adv_page" property="advPage" />
+		<result column="adv_position" property="advPosition" />
+		<result column="img_name" property="imgName" />
+		<result column="adv_pattern" property="advPattern" />
+		<result column="adv_size" property="advSize" />
+		<result column="webpage_url" property="webpageUrl" />
+		<result column="adv_explain" property="advExplain" />
+		<result column="adv_status" property="advStatus" />
+		<association property="advType" javaType="lbw.yht.adv.domain.AdvType"
+			resultMap="AdvTypeMap" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvplaceRelease" id="advplaceReleaseMap">
+		<id column="advplace_id" property="advplaceId" />
+		<result column="starting_price" property="startingPrice" />
+		<result column="increase" property="increase" />
+		<result column="assessment_price" property="assessmentPrice" />
+		<result column="start_bidding_period" property="startBiddingPeriod" />
+		<result column="end_bidding_period" property="endBiddingPeriod" />
+		<result column="start_use_time" property="startUseTime" />
+		<result column="end_use_time" property="endUseTime" />
+		<result column="bidding_notice" property="biddingNotice" />
+		<result column="bidding_bulletin" property="biddingBulletin" />
+		<result column="advplace_state" property="advplaceState" />
+		<association property="advAttribute" javaType="lbw.yht.adv.domain.AdvAttribute"
+			resultMap="AdvAttributeMap" />
+	</resultMap>
+
+	<select id="queryAllpageList" parameterType="lbw.yht.adv.domain.param.AdvplaceReleaseParam"
+		resultMap="advplaceReleaseMap">
+		SELECT
+		a.advplace_id,
+		a.starting_price,
+		a.increase,
+		a.assessment_price,
+		a.start_bidding_period,
+		a.end_bidding_period,
+		a.start_use_time,
+		a.end_use_time,
+		a.bidding_notice,
+		a.bidding_bulletin,
+		a.advplace_state,
+		b.adv_id,
+		b.region_code,
+		b.region_name,
+		b.adv_area,
+		b.adv_page,
+		b.adv_position,
+		b.img_name,
+		b.adv_pattern,
+		b.adv_size,
+		b.webpage_url,
+		c.type_code,
+		c.type_name
+		FROM
+		advplace_release a left join adv_attribute
+		b on
+		a.adv_id=b.adv_id
+		left
+		join adv_type c on b.type_code=c.type_code
+		where 1=1
+		<if
+			test="beginDateS != null and beginDateS != '' and endDateS != null and endDateS != '' ">
+			and a.start_bidding_period between #{beginDateS} and #{endDateS}
+		</if>
+		<if test="advplaceState != null and advplaceState != ''">
+			and a.advplace_state = #{advplaceState}
+		</if>
+		<if test="typeCode != null and typeCode != ''">
+			and c.type_code = #{typeCode}
+		</if>
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort} ${pagination.order}
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</select>
+
+	<select id="queryCount" parameterType="lbw.yht.adv.domain.param.AdvplaceReleaseParam"
+		resultType="int">
+		select count(*) from
+		advplace_release a left join adv_attribute b on
+		a.adv_id=b.adv_id
+		left
+		join adv_type c on b.type_code=c.type_code
+		where
+		1=1
+		<if
+			test="beginDateS != null and beginDateS != '' and endDateS != null and endDateS != '' ">
+			and a.start_bidding_period between #{beginDateS} and #{endDateS}
+		</if>
+		<if test="advplaceState != null and advplaceState != ''">
+			and a.advplace_state = #{advplaceState}
+		</if>
+		<if test="typeCode != null and typeCode != ''">
+			and c.type_code = #{typeCode}
+		</if>
+	</select>
+
+	<select id="findByAdvplaceId" parameterType="String" resultMap="advplaceReleaseMap">
+		SELECT
+		a.advplace_id,
+		a.starting_price,
+		a.increase,
+		a.assessment_price,
+		a.start_bidding_period,
+		a.end_bidding_period,
+		a.start_use_time,
+		a.end_use_time,
+		a.bidding_notice,
+		a.bidding_bulletin,
+		a.advplace_state,
+		b.adv_id,
+		b.region_code,
+		b.region_name,
+		b.adv_area,
+		b.adv_page,
+		b.adv_position,
+		b.img_name,
+		b.adv_pattern,
+		b.adv_size,
+		b.webpage_url,
+		c.type_code,
+		c.type_name
+		FROM
+		advplace_release a left join adv_attribute
+		b on
+		a.adv_id=b.adv_id
+		left
+		join adv_type c on b.type_code=c.type_code
+		where
+		a.advplace_id=#{advplaceId}
+	</select>
+
+
+
+	<select id="findByDate" parameterType="lbw.yht.adv.domain.AdvplaceRelease"
+		resultMap="advplaceReleaseMap">
+		SELECT
+		a.advplace_id,
+		a.starting_price,
+		a.increase,
+		a.assessment_price,
+		a.start_bidding_period,
+		a.end_bidding_period,
+		a.start_use_time,
+		a.end_use_time,
+		a.bidding_notice,
+		a.bidding_bulletin,
+		a.advplace_state,
+		b.adv_id,
+		b.region_code,
+		b.region_name,
+		b.adv_area,
+		b.adv_page,
+		b.adv_position,
+		b.img_name,
+		b.adv_pattern,
+		b.adv_size,
+		b.webpage_url,
+		c.type_code,
+		c.type_name
+		FROM
+		advplace_release a left join
+		adv_attribute
+		b on
+		a.adv_id=b.adv_id
+		left
+		join adv_type c on
+		b.type_code=c.type_code
+		where
+		b.adv_id=#{advAttribute.advId} and
+		a.advplace_state=0
+		and ( #{startUseTime} between a.start_use_time and
+		a.end_use_time or #{endUseTime} between a.start_use_time and
+		a.end_use_time or (a.start_use_time between #{startUseTime} and
+		#{endUseTime} and a.end_use_time between #{startUseTime} and
+		#{endUseTime} ))
+	</select>
+
+
+
+
+	<insert id="save" parameterType="lbw.yht.adv.domain.AdvplaceRelease">
+		insert into advplace_release(
+		adv_id,
+		starting_price,
+		increase,
+		assessment_price,
+		start_bidding_period,
+		end_bidding_period,
+		start_use_time,
+		end_use_time,
+		bidding_notice,
+		bidding_bulletin,
+		advplace_state
+		) values(
+		#{advAttribute.advId},
+		#{startingPrice},
+		#{increase},
+		#{assessmentPrice},
+		#{startBiddingPeriod},
+		#{endBiddingPeriod},
+		#{startUseTime},
+		#{endUseTime},
+		#{biddingNotice},
+		#{biddingBulletin},
+		#{advplaceState})
+	</insert>
+
+
+	<update id="modify" parameterType="lbw.yht.adv.domain.AdvplaceRelease">
+		update advplace_release set
+		adv_id=#{advAttribute.advId},
+		starting_price=#{startingPrice},
+		increase=#{increase},
+		assessment_price=#{assessmentPrice},
+		start_bidding_period=#{startBiddingPeriod},
+		end_bidding_period=#{endBiddingPeriod},
+		start_use_time=#{startUseTime},
+		end_use_time=#{endUseTime},
+		bidding_notice=#{biddingNotice},
+		bidding_bulletin=#{biddingBulletin}
+		where advplace_id=#{advplaceId}
+	</update>
+
+	<update id="modifyAdvplaReSta" parameterType="String">
+		update
+		advplace_release set
+		advplace_state=1
+		where advplace_id=#{advplaceId}
+	</update>
+
+	<select id="queryAll" resultMap="advplaceReleaseMap">
+		SELECT
+		a.advplace_id,
+		a.starting_price,
+		a.increase,
+		a.assessment_price,
+		a.start_bidding_period,
+		a.end_bidding_period,
+		a.start_use_time,
+		a.end_use_time,
+		a.bidding_notice,
+		a.bidding_bulletin,
+		a.advplace_state
+		FROM
+		advplace_release a
+		where
+		a.advplace_state=0
+	</select>
+
+	<update id="modifyAdvplaReSta2" parameterType="String">
+		update
+		advplace_release set
+		advplace_state=-1
+		where advplace_id=#{advplaceId}
+	</update>
+
+
+
+	<select id="queryAttributeList" parameterType="Map"
+		resultMap="advplaceReleaseMap">
+		SELECT
+		a.advplace_id,
+		a.starting_price,
+		a.increase,
+		a.assessment_price,
+		a.start_bidding_period,
+		a.end_bidding_period,
+		a.start_use_time,
+		a.end_use_time,
+		a.bidding_notice,
+		a.bidding_bulletin,
+		a.advplace_state,
+		b.adv_id,
+		b.region_code,
+		b.region_name,
+		b.adv_area,
+		b.adv_page,
+		b.adv_position,
+		b.img_name,
+		b.adv_pattern,
+		b.adv_size,
+		b.webpage_url,
+		c.type_code,
+		c.type_name
+		FROM
+		advplace_release a left join adv_attribute
+		b on
+		a.adv_id=b.adv_id
+		left
+		join adv_type c on b.type_code=c.type_code
+		where a.advplace_state=0
+		<if test="typeCode != null and typeCode != ''">
+			and c.type_code = #{typeCode}
+		</if>
+		<if test="regionCode != null and regionCode != ''">
+			and b.region_code = #{regionCode}
+		</if>
+	</select>
+
+	<select id="queryAttributeCount" parameterType="Map" resultType="int">
+		select count(*)
+		FROM
+		advplace_release a left join adv_attribute
+		b on
+		a.adv_id=b.adv_id
+		left
+		join adv_type c on b.type_code=c.type_code
+		where a.advplace_state=0
+		<if test="typeCode != null and typeCode != ''">
+			and c.type_code = #{typeCode}
+		</if>
+		<if test="regionCode != null and regionCode != ''">
+			and b.region_code = #{regionCode}
+		</if>
+	</select>
+
+</mapper>

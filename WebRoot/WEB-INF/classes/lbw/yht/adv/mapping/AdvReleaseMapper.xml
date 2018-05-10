@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IAdvReleaseDao">
+
+	<resultMap type="lbw.yht.adv.domain.ReleaseTime" id="releaseTimeMap">
+		<id column="time_id" property="timeId" />
+		<result column="start_time" property="startTime" />
+		<result column="end_time" property="endTime" />
+		<result column="total_number" property="totalNumber" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvType" id="AdvTypeMap">
+		<id column="type_code" property="typeCode" />
+		<result column="type_name" property="typeName" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvAttribute" id="AdvAttributeMap">
+		<id column="adv_id" property="advId" />
+		<result column="region_code" property="regionCode" />
+		<result column="region_name" property="regionName" />
+		<result column="adv_area" property="advArea" />
+		<result column="adv_page" property="advPage" />
+		<result column="adv_position" property="advPosition" />
+		<result column="img_name" property="imgName" />
+		<result column="adv_pattern" property="advPattern" />
+		<result column="adv_size" property="advSize" />
+		<result column="webpage_url" property="webpageUrl" />
+		<result column="adv_explain" property="advExplain" />
+		<result column="adv_status" property="advStatus" />
+		<association property="advType" javaType="lbw.yht.adv.domain.AdvType"
+			resultMap="AdvTypeMap" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.AdvRelease" id="advReleaseMap">
+		<id column="release_id" property="releaseId" />
+		<result column="release_name" property="releaseName" />
+		<result column="start_date" property="startDate" />
+		<result column="end_date" property="endDate" />
+		<result column="release_content" property="releaseContent" />
+		<result column="bidding_id" property="biddingId" />
+		<collection property="releaseTimeList" javaType="ArrayList"
+			resultMap="releaseTimeMap" />
+		<collection property="advAttributeList" javaType="ArrayList"
+			resultMap="AdvAttributeMap" />
+	</resultMap>
+
+	<select id="queryAllpageList" parameterType="lbw.yht.adv.domain.param.AdvReleaseParam"
+		resultMap="advReleaseMap">
+		SELECT
+		a.release_id,
+		a.release_name,
+		a.start_date,
+		a.end_date,
+		a.release_content,
+		a.bidding_id
+		FROM
+		adv_release a
+		where 1=1
+		<if
+			test="beginDateS != null and beginDateS != '' and endDateS != null and endDateS != '' ">
+			and a.start_date between #{beginDateS} and #{endDateS}
+		</if>
+		<if
+			test="beginDateE != null and beginDateE != '' and endDateE != null and endDateE != '' ">
+			and a.end_date between #{beginDateE} and #{endDateE}
+		</if>
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort} ${pagination.order}
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</select>
+
+	<select id="queryCount" parameterType="lbw.yht.adv.domain.param.AdvReleaseParam"
+		resultType="int">
+		select count(*)
+		FROM
+		adv_release a
+		<!-- LEFT JOIN release_time b ON a.release_id = b.release_id LEFT JOIN 
+			adv_rel_release c ON a.release_id = c.release_id LEFT JOIN adv_attribute 
+			d ON c.adv_id = d.adv_id LEFT JOIN adv_type e ON d.type_code = e.type_code -->
+		where 1=1
+		<if
+			test="beginDateS != null and beginDateS != '' and endDateS != null and endDateS != '' ">
+			and a.start_date between #{beginDateS} and #{endDateS}
+		</if>
+		<if
+			test="beginDateE != null and beginDateE != '' and endDateE != null and endDateE != '' ">
+			and a.end_date between #{beginDateE} and #{endDateE}
+		</if>
+	</select>
+
+	<insert id="save" parameterType="lbw.yht.adv.domain.AdvRelease">
+		insert into adv_release(
+		release_name,
+		start_date,
+		end_date,
+		release_content,
+		bidding_id
+		) values(
+		#{releaseName},
+		#{startDate},
+		#{endDate},
+		#{releaseContent},
+		#{biddingId})
+	</insert>
+
+	<delete id="deleteByReleaseId" parameterType="String">
+		delete from
+		adv_release where release_id=#{releaseId}
+	</delete>
+
+	<select id="findByReleaseId" parameterType="String" resultMap="advReleaseMap">
+		SELECT
+		a.release_id,
+		a.release_name,
+		a.start_date,
+		a.end_date,
+		a.release_content,
+		a.bidding_id,
+		b.time_id,
+		b.start_time,
+		b.end_time,
+		b.total_number,
+		d.adv_id,
+		d.region_code,
+		d.region_name,
+		d.adv_area,
+		d.adv_page,
+		d.adv_position,
+		d.img_name,
+		d.adv_pattern,
+		d.adv_size,
+		d.webpage_url,
+		d.adv_explain,
+		d.adv_status,
+		e.type_code,
+		e.type_name
+		FROM
+		adv_release a
+		LEFT JOIN release_time b ON
+		a.release_id = b.release_id
+		LEFT JOIN
+		adv_rel_release c ON a.release_id
+		= c.release_id
+		LEFT JOIN
+		adv_attribute
+		d ON c.adv_id = d.adv_id
+		LEFT
+		JOIN
+		adv_type e ON
+		d.type_code = e.type_code
+		where
+		a.release_id=#{releaseId}
+	</select>
+
+
+	<select id="findByReleaseName" parameterType="String" resultMap="advReleaseMap">
+		SELECT
+		a.release_id,
+		a.release_name,
+		a.start_date,
+		a.end_date,
+		a.release_content,
+		a.bidding_id
+		FROM
+		adv_release a
+		where
+		a.release_name=
+		#{releaseName}
+	</select>
+
+
+	<update id="modify" parameterType="lbw.yht.adv.domain.AdvRelease">
+		update adv_release set
+		release_name=#{releaseName},
+		start_date=#{startDate},
+		end_date=#{endDate},
+		release_content=#{releaseContent},
+		bidding_id=#{biddingId}
+		where
+		release_id=#{releaseId}
+	</update>
+
+</mapper>

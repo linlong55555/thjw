@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lbw.yht.adv.dao.IRelAdvTypeDao">
+	
+	<resultMap type="lbw.yht.adv.domain.AdvFiltrate" id="advFiltrateMap">
+		<id column="filtrate_code" property="filtrateCode" />
+		<result column="filtrate_pid" property="filtratePid" />
+		<result column="filtrate_name" property="filtrateName" />
+		<result column="filtrate_state" property="filtrateState" />
+		<result column="filtrate_date" property="filtrateDate" />
+		<result column="content" property="content" />
+	</resultMap>
+	
+	<resultMap type="lbw.yht.adv.domain.AdvType" id="advTypeMap">
+		<id column="type_code" property="typeCode" />
+		<result column="parent_type_code" property="parentTypeCode" />
+		<result column="type_name" property="typeName" />
+		<result column="type_date" property="typeDate" />
+		<result column="type_content" property="typeContent" />
+		<result column="type_state" property="typeState" />
+	</resultMap>
+
+	<resultMap type="lbw.yht.adv.domain.RelAdvType" id="RelAdvTypeMap">
+		<id column="relation_id" property="relationId" />
+		<association property="typeCode" javaType="lbw.yht.adv.domain.AdvType"
+			resultMap="advTypeMap" />
+		<association property="filtrateCode" javaType="lbw.yht.adv.domain.AdvFiltrate"
+			resultMap="advFiltrateMap" />
+	</resultMap>
+	
+	<select id="queryCount" parameterType="lbw.yht.adv.domain.param.RelAdvTypeParam" resultType="int">
+		select count(*) 
+		FROM
+		rel_adv_type a left join
+		adv_type b on
+		a.type_code=b.type_code LEFT JOIN
+		adv_filtrate c on a.filtrate_code=c.filtrate_code
+	</select>
+	
+	<select id="queryAllpageList" parameterType="lbw.yht.adv.domain.RelAdvType"
+		resultMap="RelAdvTypeMap">
+		SELECT
+		a.relation_id,
+		a.filtrate_code,
+		a.type_code,
+		b.type_name,
+		c.filtrate_name
+		FROM
+		rel_adv_type a left join
+		adv_type b on
+		a.type_code=b.type_code LEFT JOIN
+		adv_filtrate c on a.filtrate_code=c.filtrate_code
+		where 1=1
+		<if test="pagination.sort != null or pagination.order != null">
+			order by ${pagination.sort} ${pagination.order}
+		</if>
+		limit #{pagination.page},#{pagination.rows}
+	</select>
+	
+</mapper>
