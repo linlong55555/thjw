@@ -89,7 +89,7 @@ public class AdvAuctionActivityController extends BaseController {
   public ModelAndView initAdd(){
     List<AdvType> advTypes = this.advTypeService.queryAdvTypeAll();
     Map<String, Object> model = new HashMap<String, Object>();
-    model.put("advTypes", advTypes);
+    model.put("advTypes", advTypes);//新增了一个项目
     return new ModelAndView("advAuctionActivity/add", model);
   }
   

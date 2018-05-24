@@ -39,6 +39,8 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("advbidding")
 public class AdvBiddingController extends BaseController {
 
+	
+	//修改了了一个项目
 	@Autowired
 	private AdvBiddingService advBiddingService;// 竞价主表
 	@Autowired

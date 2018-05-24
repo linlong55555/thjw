@@ -42,7 +42,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("adv")
 public class AdvController extends BaseController {
 
-	@Autowired
+	@Autowired//----
 	private RegionService regionService;// 地区
 	@Autowired
 	private AdvTypeService advTypeService;// 类型
